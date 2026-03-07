@@ -1,0 +1,320 @@
+cumpleaños.html
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Felices 20, Hannia</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        /* --- RESET Y FONDOS --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            background: #0b0b1a; color: white; font-family: 'Poppins', sans-serif;
+            overflow: hidden; 
+            width: 100vw;
+            /* FIX PARA iOS: Evita problemas con la barra de navegación de Safari */
+            height: 100vh; height: 100dvh; 
+            position: fixed; /* Evita el scroll de rebote en iPhone */
+            touch-action: none; /* Bloquea gestos no deseados de iOS */
+            -webkit-user-select: none; user-select: none; /* Evita que seleccione texto por error */
+        }
+        canvas { position: absolute; top: 0; left: 0; z-index: 1; pointer-events: none; }
+
+        /* --- DESTELLO BLANCO --- */
+        #flash {
+            position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; height: 100dvh;
+            background: white; z-index: 100; opacity: 0; pointer-events: none;
+            transition: opacity 0.8s ease-out;
+        }
+
+        /* --- FASE 1: INICIO --- */
+        #pantalla-inicio {
+            position: absolute; width: 100%; height: 100%; z-index: 50;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            background: radial-gradient(circle, #2a0845 0%, #0b0b1a 100%);
+            transition: opacity 1s ease;
+            /* Corrección para centrado en iOS */
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+        .btn-latido {
+            background: linear-gradient(45deg, #ff0844 0%, #ffb199 100%);
+            border: none; padding: 20px 50px; border-radius: 50px;
+            color: white; font-size: 1.5rem; font-weight: 600; cursor: pointer;
+            box-shadow: 0 0 30px rgba(255, 8, 68, 0.5);
+            animation: latido 1.5s infinite; font-family: 'Poppins', sans-serif;
+            -webkit-tap-highlight-color: transparent; /* Quita el cuadro gris nativo de iOS al tocar */
+        }
+        @keyframes latido {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.08); box-shadow: 0 0 50px rgba(255, 8, 68, 0.8); }
+        }
+
+        /* --- FASE 2: CORAZÓN Y MANOS --- */
+        #escena-corazon {
+            position: absolute; width: 100%; height: 100%; z-index: 40;
+            display: flex; justify-content: center; align-items: center;
+            opacity: 0; pointer-events: none; transition: opacity 1s ease;
+        }
+        .corazon-contenedor { position: relative; width: 150px; height: 150px; }
+        .mitad { 
+            position: absolute; width: 150px; height: 150px; fill: #e91e63;
+            transition: transform 1.5s cubic-bezier(0.25, 1, 0.5, 1), opacity 1.5s;
+            -webkit-transition: -webkit-transform 1.5s cubic-bezier(0.25, 1, 0.5, 1), opacity 1.5s;
+            filter: drop-shadow(0 0 20px rgba(233, 30, 99, 0.8));
+        }
+        .mitad-izq.roto { transform: translateX(-100px) rotate(-20deg); opacity: 0; }
+        .mitad-der.roto { transform: translateX(100px) rotate(20deg); opacity: 0; }
+
+        /* --- FASE 3: CARTA GLASSMORPHISM --- */
+        #escena-carta {
+            position: absolute; width: 100%; height: 100%; z-index: 30;
+            display: flex; justify-content: center; align-items: center;
+            opacity: 0; pointer-events: none; transition: opacity 1.5s ease;
+        }
+        .carta-glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); /* Crucial para iOS */
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 25px; padding: 40px 30px;
+            width: 90%; max-width: 450px; text-align: center;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+            transform: translateY(50px); transition: transform 1.5s ease;
+        }
+        .carta-glass.emergida { transform: translateY(0); pointer-events: all; }
+
+        h1 { font-family: 'Dancing Script', cursive; font-size: 2.8rem; color: #ff9a9e; margin-bottom: 15px; text-shadow: 0 0 10px rgba(255,154,158,0.5); }
+        .texto-maquina { font-size: 1.1rem; line-height: 1.6; min-height: 150px; }
+        .cursor::after { content: '|'; animation: parpadeo 0.7s infinite; color: #ff9a9e; }
+        @keyframes parpadeo { 50% { opacity: 0; } }
+
+        /* --- ICONOS FLOTANTES --- */
+        .icono-flotante { position: absolute; font-size: 2rem; opacity: 0; animation: flotarArriba 6s linear infinite; z-index: 2; }
+        @keyframes flotarArriba {
+            0% { transform: translateY(100dvh) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.6; }
+            90% { opacity: 0.6; }
+            100% { transform: translateY(-20vh) rotate(360deg); opacity: 0; }
+        }
+
+        /* --- PASTEL CON VELA ANIMADA --- */
+        .contenedor-pastel { margin-top: 20px; position: relative; display: inline-block; }
+        .pastel { font-size: 4rem; filter: drop-shadow(0 0 10px rgba(255,255,255,0.3)); }
+        .llama {
+            position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+            width: 15px; height: 25px; background: #ff9800;
+            border-radius: 50% 50% 20% 20%;
+            box-shadow: 0 0 15px #ffeb3b, 0 0 30px #ff9800;
+            animation: parpadeoLlama 0.1s infinite alternate;
+        }
+        @keyframes parpadeoLlama {
+            0% { transform: translateX(-50%) scale(1) rotate(-2deg); opacity: 0.9; }
+            100% { transform: translateX(-50%) scale(1.1) rotate(2deg); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="lienzoFX"></canvas>
+
+    <div id="flash"></div>
+
+    <div id="contenedor-iconos"></div>
+
+    <div id="pantalla-inicio">
+        <button class="btn-latido" id="btn-iniciar">Desbloquear Magia ❤️</button>
+        <p style="margin-top: 20px; font-size: 0.9rem; opacity: 0.7; text-align: center; padding: 0 20px;">
+            Toca con fuerza<br>
+            <span style="font-size: 0.7rem;">(La vibración solo está disponible en Android)</span>
+        </p>
+    </div>
+
+    <div id="escena-corazon">
+        <div class="corazon-contenedor">
+            <svg id="corazon-izq" class="mitad mitad-izq" viewBox="0 0 32 32">
+                <path d="M16 28.5L14.5 27C9.2 22.2 2 15.7 2 8.5 2 4.4 5.4 1 9.5 1 12.3 1 14.7 2.4 16 4.5V28.5Z"/>
+            </svg>
+            <svg id="corazon-der" class="mitad mitad-der" viewBox="0 0 32 32">
+                <path d="M16 28.5V4.5C17.3 2.4 19.7 1 22.5 1 26.6 1 30 4.4 30 8.5 30 15.7 22.8 22.2 17.5 27L16 28.5Z"/>
+            </svg>
+        </div>
+    </div>
+
+    <div id="escena-carta">
+        <div class="carta-glass" id="carta">
+            <h1>Felices 20, Hannia</h1>
+            <div id="textoEscribiendo" class="texto-maquina cursor"></div>
+            
+            <div class="contenedor-pastel">
+                <div class="llama"></div>
+                <div class="pastel">🎂</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Cambiamos onclick por EventListener (mejor respuesta en iOS)
+        document.getElementById('btn-iniciar').addEventListener('click', iniciarMagia);
+        // Previene doble tap zoom en iOS en el botón
+        document.getElementById('btn-iniciar').addEventListener('dblclick', function(e){ e.preventDefault(); });
+
+        function vibrar(patron) {
+            // Validamos que exista para no romper iOS
+            if (navigator.vibrate) navigator.vibrate(patron);
+        }
+
+        function iniciarMagia() {
+            vibrar([100, 50, 100]); 
+            
+            document.getElementById('pantalla-inicio').style.opacity = '0';
+            setTimeout(() => document.getElementById('pantalla-inicio').style.display = 'none', 1000);
+
+            const escenaCorazon = document.getElementById('escena-corazon');
+            escenaCorazon.style.opacity = '1';
+
+            setTimeout(() => {
+                vibrar([300]); 
+                document.getElementById('corazon-izq').classList.add('roto');
+                document.getElementById('corazon-der').classList.add('roto');
+                
+                setTimeout(() => {
+                    const flash = document.getElementById('flash');
+                    flash.style.opacity = '1';
+                    iniciarFuegosArtificiales();
+                    generarIconosTematicos();
+                    
+                    setTimeout(() => {
+                        flash.style.opacity = '0';
+                        escenaCorazon.style.display = 'none';
+                        
+                        const escenaCarta = document.getElementById('escena-carta');
+                        const carta = document.getElementById('carta');
+                        escenaCarta.style.opacity = '1';
+                        carta.classList.add('emergida');
+
+                        setTimeout(() => {
+                            const mensaje = "A la futura doctora más fuerte. 🩺🏋️‍♀️ Que tus 20 años estén llenos de guardias tranquilas, PRs en el gym y mucha felicidad. Eres increíble, dedicada y hermosa. ¡Que el universo te regale todo lo que sueñas! ✨💖";
+                            escribirTexto(mensaje, document.getElementById('textoEscribiendo'));
+                        }, 1000);
+                        
+                    }, 800); 
+                }, 800); 
+            }, 1000);
+        }
+
+        function escribirTexto(mensaje, elemento) {
+            let i = 0;
+            vibrar([50]); 
+            function escribir() {
+                if (i < mensaje.length) {
+                    elemento.innerHTML += mensaje.charAt(i);
+                    i++;
+                    if(i % 5 === 0) vibrar([10]); 
+                    setTimeout(escribir, 60); 
+                } else {
+                    elemento.classList.remove('cursor');
+                }
+            }
+            escribir();
+        }
+
+        function generarIconosTematicos() {
+            const iconos = ['🩺', '🏋️‍♀️', '💊', '💖', '⚕️', '✨', '💪'];
+            const contenedor = document.getElementById('contenedor-iconos');
+            setInterval(() => {
+                const el = document.createElement('div');
+                el.className = 'icono-flotante';
+                el.innerText = iconos[Math.floor(Math.random() * iconos.length)];
+                el.style.left = Math.random() * 100 + 'vw';
+                el.style.animationDuration = (Math.random() * 4 + 4) + 's';
+                el.style.fontSize = (Math.random() * 1.5 + 1) + 'rem';
+                contenedor.appendChild(el);
+                setTimeout(() => el.remove(), 8000);
+            }, 600);
+        }
+
+        // --- LÓGICA DEL CANVAS ---
+        const canvas = document.getElementById('lienzoFX');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        let particulas = [];
+        let estrellas = [];
+        let animandoFuegos = false;
+
+        function redimensionar() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            // Forzar altura del body para navegadores iOS rebeldes
+            document.body.style.height = window.innerHeight + 'px';
+        }
+        window.addEventListener('resize', redimensionar);
+        // Timeout para asegurar que iOS calcule el tamaño bien al inicio
+        setTimeout(redimensionar, 100);
+
+        for(let i=0; i<150; i++) {
+            estrellas.push({
+                x: Math.random() * window.innerWidth, y: Math.random() * window.innerHeight,
+                r: Math.random() * 1.5, a: Math.random()
+            });
+        }
+
+        class ParticulaFuego {
+            constructor(x, y, color) {
+                this.x = x; this.y = y;
+                this.color = color;
+                const angulo = Math.random() * Math.PI * 2;
+                const velocidad = Math.random() * 5 + 2;
+                this.vx = Math.cos(angulo) * velocidad;
+                this.vy = Math.sin(angulo) * velocidad;
+                this.vida = 1; this.decaimiento = Math.random() * 0.02 + 0.015;
+                this.gravedad = 0.05;
+            }
+            actualizar() {
+                this.x += this.vx; this.vy += this.gravedad; this.y += this.vy;
+                this.vida -= this.decaimiento;
+            }
+            dibujar() {
+                ctx.globalAlpha = this.vida;
+                ctx.fillStyle = this.color;
+                ctx.beginPath(); ctx.arc(this.x, this.y, 2, 0, Math.PI*2); ctx.fill();
+            }
+        }
+
+        function crearExplosion(x, y) {
+            const colores = ['#ff0044', '#00ff88', '#ffea00', '#00ccff', '#ff00ff'];
+            const color = colores[Math.floor(Math.random() * colores.length)];
+            for(let i=0; i<80; i++) particulas.push(new ParticulaFuego(x, y, color));
+        }
+
+        function loopCanvas() {
+            ctx.globalCompositeOperation = 'destination-out';
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+            ctx.fillRect(0, 0, width, height);
+            ctx.globalCompositeOperation = 'lighter';
+
+            ctx.fillStyle = 'white';
+            estrellas.forEach(e => {
+                ctx.globalAlpha = e.a;
+                ctx.beginPath(); ctx.arc(e.x, e.y, e.r, 0, Math.PI*2); ctx.fill();
+                e.a += (Math.random() - 0.5) * 0.1;
+                if(e.a < 0) e.a = 0; if(e.a > 1) e.a = 1;
+            });
+
+            if (animandoFuegos) {
+                if(Math.random() < 0.05) crearExplosion(Math.random() * width, Math.random() * height * 0.5);
+                for(let i = particulas.length - 1; i >= 0; i--) {
+                    let p = particulas[i];
+                    p.actualizar(); p.dibujar();
+                    if(p.vida <= 0) particulas.splice(i, 1);
+                }
+            }
+            requestAnimationFrame(loopCanvas);
+        }
+        loopCanvas();
+
+        function iniciarFuegosArtificiales() {
+            animandoFuegos = true;
+            crearExplosion(width/2, height/2); 
+        }
+    </script>
+</body>
+</html>
